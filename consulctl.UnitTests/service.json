@@ -1,0 +1,5 @@
+﻿{
+    "name": "myService",
+    "port": 400,
+    "node": "node1"
+}

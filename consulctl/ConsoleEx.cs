@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace consulctl
+namespace Consulctl
 {
     public static class ConsoleEx
     {

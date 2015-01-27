@@ -1,70 +1,42 @@
 ﻿using System;
-using System.IO;
-using CommandLine;
-using consul_net;
-using Newtonsoft.Json;
 
-namespace consulctl
+namespace Consulctl
 {
     class Program
     {
-        private static bool DisplayHelpIfEmpty( string[] args )
+        static int Main( string[] args )
         {
-            if( ( args == null ) || ( args.Length == 0 ) )
+            //Console.WriteLine("Attach debugger...");
+            //Console.ReadLine();
+
+            //args = new string[] { "--help" };
+            //args = new string[] { "-h", "172.17.8.101", "-s", "service.json" };
+            //args = new string[] { "-h", "172.17.8.101", "-d", "-s", "service.json" };
+            //var argStr = "--read --key meow -h 172.17.8.101";
+            //args = argStr.Split();
+
+            var commandProcessor = new ConsulCommandLineTool();
+            var result = commandProcessor.Process( args );
+
+            if( result.ShowHelp )
             {
-                Console.WriteLine( new Options().GetUsage() );
-                return true;
+                Console.WriteLine( result.HelpText );
+                return -1;
             }
-            return false;
-        }
-
-
-        static void Main( string[] args )
-        {
-            //args = new[] { "service.json" };
-            if( DisplayHelpIfEmpty( args ) ) return;
-
-            var options = new Options();
-            if( Parser.Default.ParseArguments( args, options ) )
+            else if( result.ShowValue )
             {
-                Process( options );
+                Console.WriteLine( result.Value );
+                return 0;
+            }
+            else if( result.Success )
+            {
+                ConsoleEx.WriteLineSuccess( result.Message );
+                return 0;
             }
             else
             {
-                Console.WriteLine( options.GetUsage() );
-            }
-        }
-
-        static void Process( Options options )
-        {
-            var client = new ConsulClient( options.GetHostString() );
-            var sr = new StreamReader( options.ServiceDefinitionFilePath );
-            var serviceJson = sr.ReadToEnd();
-            var serviceDef = ServiceDefinition.CreateFromJson( serviceJson );
-
-            if( options.Unregister )
-            {
-                bool success = client.UnregisterAsync( serviceDef.Name ).Result;
-                if( success )
-                {
-                    ConsoleEx.WriteLineSuccess( "successfully unregistered service." );
-                }
-                else
-                {
-                    ConsoleEx.WriteLineError( "could not unregister service." );
-                }
-            }
-            else
-            {
-                bool success = client.RegisterAsync( serviceDef ).Result;
-                if( success )
-                {
-                    ConsoleEx.WriteLineSuccess( "successfully registered service." );
-                }
-                else
-                {
-                    ConsoleEx.WriteLineError( "could not register service." );
-                }
+                ConsoleEx.WriteLineError( result.Message );
+                return -1;
             }
         }
     }

@@ -7,7 +7,7 @@
     <ProjectGuid>{37998DB2-CE6D-4E84-A6BE-71A97B66A7F1}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>consulctl</RootNamespace>
+    <RootNamespace>Consulctl</RootNamespace>
     <AssemblyName>consulctl</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -40,11 +40,13 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleEx.cs" />
+    <Compile Include="ConsulCommandLineTool.cs" />
+    <Compile Include="OperationException.cs" />
+    <Compile Include="OperationResult.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -57,9 +59,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\consul-net\consul-net.csproj">
+    <ProjectReference Include="..\consul-net\Consul.csproj">
       <Project>{3a714a7b-3438-4d3a-9f72-67938bcc9411}</Project>
-      <Name>consul-net</Name>
+      <Name>Consul</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace consul_net
+namespace Consul
 {
     public class ServiceDefinition
     {
