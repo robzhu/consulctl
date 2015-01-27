@@ -1,8 +1,9 @@
 ﻿
 namespace Consulctl
 {
-    public enum OperationResultCode
+    public enum OperationResultCode : int
     {
+        Success = 0,
         GenericError,
         HelpRequested,
         NoArguments,
@@ -10,9 +11,7 @@ namespace Consulctl
         HostNotReachable,
         ServiceDefinitionFileNotFound,
         ServiceDefinitionFileBadFormat,
-        RegisterServiceSuccess,
         RegisterServiceFailure,
-        UnregisterServiceSuccess,
         UnregisterServiceFailure,
         MainOptionMissing,
         MutlipleMainOptions,
@@ -20,9 +19,7 @@ namespace Consulctl
         MutlipleSubOptions,
         InvalidHostUri, 
         InvalidKey,
-        CreateKeySuccess,
         CreateKeyFailure,
-        DeleteKeySuccess,
         DeleteKeyFailure,
     }
 
@@ -49,6 +46,11 @@ namespace Consulctl
             };
             switch( code )
             {
+                case OperationResultCode.Success:
+                    result.Message = "Operation completed successfully.";
+                    result.Success = true;
+                    break;
+
                 case OperationResultCode.GenericError:
                     result.Message = "An unexpected error has occured.";
                     break;
@@ -82,18 +84,8 @@ namespace Consulctl
                     result.Message = string.Format( "The specified service definition file is not valid: {0}", commandTool.Options.ServiceDefintion );
                     break;
 
-                case OperationResultCode.RegisterServiceSuccess:
-                    result.Success = true;
-                    result.Message = string.Format( "Successfully registered the service." );
-                    break;
-
                 case OperationResultCode.RegisterServiceFailure:
                     result.Message = string.Format( "Failed to register the service." );
-                    break;
-
-                case OperationResultCode.UnregisterServiceSuccess:
-                    result.Success = true;
-                    result.Message = string.Format( "Successfully unregistered the service." );
                     break;
 
                 case OperationResultCode.UnregisterServiceFailure:
@@ -134,18 +126,8 @@ namespace Consulctl
                     result.Message = string.Format( "The specified key is not valid: {0}", commandTool.Options.Key );
                     break;
 
-                case OperationResultCode.DeleteKeySuccess:
-                    result.Success = true;
-                    result.Message = string.Format( "Successfully deleted the key: {0}", commandTool.Options.Key );
-                    break;
-
                 case OperationResultCode.DeleteKeyFailure:
                     result.Message = string.Format( "Failed to delete the key: {0}", commandTool.Options.Key );
-                    break;
-
-                case OperationResultCode.CreateKeySuccess:
-                    result.Success = true;
-                    result.Message = string.Format( "Successfully created the key: {0}", commandTool.Options.Key );
                     break;
 
                 case OperationResultCode.CreateKeyFailure:

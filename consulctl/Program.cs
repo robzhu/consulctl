@@ -21,23 +21,20 @@ namespace Consulctl
             if( result.ShowHelp )
             {
                 Console.WriteLine( result.HelpText );
-                return -1;
             }
             else if( result.ShowValue )
             {
                 Console.WriteLine( result.Value );
-                return 0;
             }
             else if( result.Success )
             {
                 ConsoleEx.WriteLineSuccess( result.Message );
-                return 0;
             }
             else
             {
                 ConsoleEx.WriteLineError( result.Message );
-                return -1;
             }
+            return (int)result.Code;
         }
     }
 }

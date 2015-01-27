@@ -180,7 +180,7 @@ namespace Consulctl
 
             bool success = await Client.UnregisterAsync( serviceName );
             return success ?
-                this.CreateResult( OperationResultCode.UnregisterServiceSuccess ) :
+                this.CreateResult( OperationResultCode.Success ) :
                 this.CreateResult( OperationResultCode.UnregisterServiceFailure );
         }
 
@@ -192,7 +192,7 @@ namespace Consulctl
 
             bool success = await Client.RegisterAsync( serviceDef );
             return success ? 
-                this.CreateResult( OperationResultCode.RegisterServiceSuccess ) :
+                this.CreateResult( OperationResultCode.Success ) :
                 this.CreateResult( OperationResultCode.RegisterServiceFailure );
         }
 
@@ -202,7 +202,7 @@ namespace Consulctl
 
             bool success = await Client.CreateKeyAsync( Options.Key, value );
             return success ? 
-                this.CreateResult( OperationResultCode.CreateKeySuccess ) :
+                this.CreateResult( OperationResultCode.Success ) :
                 this.CreateResult( OperationResultCode.CreateKeyFailure );
         }
 
@@ -224,7 +224,7 @@ namespace Consulctl
         {
             bool success = await Client.DeleteKeyAsync( Options.Key );
             return success ?
-                this.CreateResult( OperationResultCode.DeleteKeySuccess ) :
+                this.CreateResult( OperationResultCode.Success ) :
                 this.CreateResult( OperationResultCode.DeleteKeyFailure );
         }
     }
