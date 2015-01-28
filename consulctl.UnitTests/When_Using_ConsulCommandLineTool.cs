@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System;
+﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Consul;
@@ -42,7 +42,12 @@ namespace Consulctl.UnitTests
             throw new NotImplementedException();
         }
 
-        public Task<string> ReadKeyAsync( string key )
+        public Task<ValueEntry[]> ReadKeyAsync( string key )
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ReadKeySimpleAsync( string key )
         {
             throw new NotImplementedException();
         }

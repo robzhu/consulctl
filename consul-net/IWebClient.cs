@@ -12,7 +12,8 @@ namespace Consul
         Task<bool> UnregisterAsync( string serviceName );
 
         Task<bool> CreateKeyAsync( string key, string value );
-        Task<string> ReadKeyAsync( string key );
+        Task<ValueEntry[]> ReadKeyAsync( string key );
+        Task<string> ReadKeySimpleAsync( string key );
         Task<bool> DeleteKeyAsync( string key );
     }
 }

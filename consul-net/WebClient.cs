@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -60,11 +61,20 @@ namespace Consul
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<string> ReadKeyAsync( string key )
+        public async Task<ValueEntry[]> ReadKeyAsync( string key )
         {
             var request = new HttpRequestMessage( HttpMethod.Get, string.Format( KeyTemplate, key ) );
             var response = await NetClient.SendAsync( request );
-            return await response.Content.ReadAsStringAsync();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            return ValueEntry.CreateFromJson( json ).ToArray();
+        }
+
+        public async Task<string> ReadKeySimpleAsync( string key )
+        {
+            ValueEntry[] values = await ReadKeyAsync( key );
+            return values[ 0 ].GetDecodedValue();
         }
 
         public async Task<bool> DeleteKeyAsync( string key )

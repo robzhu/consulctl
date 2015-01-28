@@ -208,15 +208,13 @@ namespace Consulctl
 
         private async Task<OperationResult> ReadKeyAsync()
         {
-            var value = await Client.ReadKeyAsync( Options.Key );
-
-            var entries = ValueEntry.CreateFromJson( value );
+            var value = await Client.ReadKeySimpleAsync( Options.Key );
 
             return new OperationResult()
             {
                 Success = true,
                 ShowValue = true,
-                Value = entries[ 0 ].GetDecodedValue(),
+                Value = value,
             };
         }
 
