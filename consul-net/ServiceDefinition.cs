@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Consul
 {
@@ -9,10 +10,22 @@ namespace Consul
             return JsonConvert.DeserializeObject<ServiceDefinition>( json );
         }
 
+        public string Id { get; set; }
         public string Name { get; set; }
         public int Port { get; set; }
         public string Node { get; set; }
         public string[] Tags { get; set; }
         //Health check
+    }
+
+    public class ServiceDefinitionOutput
+    {
+        public string Address { get; set; }
+        public string ServiceId { get; set; }
+        public string ServiceName { get; set; }
+        public int ServicePort { get; set; }
+
+        [DebuggerDisplay( "Debug: {Items[index]}" )]
+        public string[] ServiceTags { get; set; }
     }
 }

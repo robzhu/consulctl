@@ -27,12 +27,12 @@ namespace Consulctl.UnitTests
             return IsHostReachableCallback();
         }
 
-        public async Task<bool> RegisterAsync( ServiceDefinition service )
+        public async Task<bool> RegisterServiceAsync( ServiceDefinition service )
         {
             return RegisterCallback( service );
         }
 
-        public async Task<bool> UnregisterAsync( string serviceName )
+        public async Task<bool> UnregisterServiceAsync( string serviceName )
         {
             return UnregisterCallback( serviceName );
         }
@@ -53,6 +53,11 @@ namespace Consulctl.UnitTests
         }
 
         public Task<bool> DeleteKeyAsync( string key )
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ServiceDefinitionOutput[]> ReadServicesByNameAsync( string serviceName )
         {
             throw new NotImplementedException();
         }

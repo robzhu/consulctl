@@ -1,0 +1,7 @@
+﻿{
+    "id":  "myService_blue",
+    "name": "myService",
+    "port": 400,
+    "node": "node1",
+    "tags": [ "blue" ]
+}

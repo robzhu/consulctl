@@ -6,14 +6,12 @@ namespace Consulctl
     {
         static int Main( string[] args )
         {
-            //Console.WriteLine("Attach debugger...");
-            //Console.ReadLine();
-
-            //args = new string[] { "--help" };
-            //args = new string[] { "-h", "172.17.8.101", "-s", "service.json" };
-            //args = new string[] { "-h", "172.17.8.101", "-d", "-s", "service.json" };
-            //var argStr = "--read --key meow -h 172.17.8.101";
-            //args = argStr.Split();
+            bool test = false;
+            if( test )
+            {
+                var argStr = "-r -k motd";
+                args = argStr.Split();
+            }
 
             var commandProcessor = new ConsulCommandLineTool();
             var result = commandProcessor.Process( args );

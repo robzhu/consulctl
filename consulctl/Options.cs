@@ -13,10 +13,10 @@ namespace Consulctl
 
 
 
-        [Option( 's', "svc", MutuallyExclusiveSet = "main", Required = false, HelpText = "The service to add or remove." )]
-        public string ServiceDefintion { get; set; }
+        [Option( 's', "svc", MutuallyExclusiveSet = "main", Required = false, HelpText = "Perform a service-related operation." )]
+        public string ServiceArgument { get; set; }
 
-        [Option( 'k', "key", MutuallyExclusiveSet = "main", Required = false, HelpText = "The key to add or remove. The default parameter must contain the value" )]
+        [Option( 'k', "key", MutuallyExclusiveSet = "main", Required = false, HelpText = "Perform a key-value-related operation." )]
         public string Key { get; set; }
 
 
@@ -40,18 +40,24 @@ namespace Consulctl
         {
             var help = new HelpText
             {
-                Heading = new HeadingInfo( "Consul command line tool", "v0.2" ),
+                Heading = new HeadingInfo( "\nConsul command line tool", "v0.3" ),
                 AdditionalNewLineAfterOption = true,
                 AddDashesToOption = true, 
             };
             help.AddPreOptionsLine( "http://www.consul.io/docs/agent/http.html" );
-            //help.AddPreOptionsLine( "" );
-            //help.AddPreOptionsLine( "Register a service:                consulctl -s 'svc.json'" );
-            //help.AddPreOptionsLine( "Unregister a service:              consulctl -r -s 'svc.json'" );
-            //help.AddPreOptionsLine( "Register a service on host/port:   consulctl -h consul.eze.com:8501 -p 9000 -s 'svc.json'" );
             help.AddOptions( this );
             help.AddPostOptionsLine( "  <service definition file path> | <k-v pair value file path>" );
             help.AddPostOptionsLine( "\n" );
+            help.AddPostOptionsLine( "Register a service:                consulctl -c -s service.json" );
+            help.AddPostOptionsLine( "Register a service on host/port:   consulctl -h consul.eze.com:8501 -p 9000 -c -s svc.json" );
+            help.AddPostOptionsLine( "Read the nodes of a service:       consulctl -r -s myService" );
+            help.AddPostOptionsLine( "Unregister a service:              consulctl -d -s service.json" );
+            help.AddPostOptionsLine( "" );
+            help.AddPostOptionsLine( "Create a key:                      consulctl -c -k motd hello" );
+            help.AddPostOptionsLine( "Read a key:                        consulctl -r -k motd" );
+            help.AddPostOptionsLine( "Delete a key:                      consulctl -d -k motd" );
+            help.AddPostOptionsLine( "" );
+            help.AddPostOptionsLine( "" );
             return help;
         }
 
@@ -62,7 +68,7 @@ namespace Consulctl
 
         public bool IsServiceOperation()
         {
-            return ( !string.IsNullOrEmpty( ServiceDefintion ) );
+            return ( !string.IsNullOrEmpty( ServiceArgument ) );
         }
 
         public bool IsKeyValueOperation()

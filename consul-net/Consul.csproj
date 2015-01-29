@@ -45,6 +45,7 @@
     <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HttpClientExtensions.cs" />
     <Compile Include="IWebClient.cs" />
     <Compile Include="ValueEntry.cs" />
     <Compile Include="WebClient.cs" />

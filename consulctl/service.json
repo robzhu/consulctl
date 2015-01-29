@@ -1,5 +1,5 @@
 ﻿{
-    "name": "myService",
-    "port": 400,
+    "name": "meow",
+    "port": 300,
     "node": "node1"
 }

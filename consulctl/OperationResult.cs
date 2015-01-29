@@ -19,6 +19,7 @@ namespace Consulctl
         MutlipleSubOptions,
         InvalidHostUri, 
         InvalidKey,
+        ValueCannotBeNullOrEmpty,
         CreateKeyFailure,
         DeleteKeyFailure,
     }
@@ -77,11 +78,11 @@ namespace Consulctl
                     break;
 
                 case OperationResultCode.ServiceDefinitionFileNotFound:
-                    result.Message = string.Format( "The specified service definition file could not be found: {0}", commandTool.Options.ServiceDefintion );
+                    result.Message = string.Format( "The specified service definition file could not be found: {0}", commandTool.Options.ServiceArgument );
                     break;
 
                 case OperationResultCode.ServiceDefinitionFileBadFormat:
-                    result.Message = string.Format( "The specified service definition file is not valid: {0}", commandTool.Options.ServiceDefintion );
+                    result.Message = string.Format( "The specified service definition file is not valid: {0}", commandTool.Options.ServiceArgument );
                     break;
 
                 case OperationResultCode.RegisterServiceFailure:
@@ -89,7 +90,7 @@ namespace Consulctl
                     break;
 
                 case OperationResultCode.UnregisterServiceFailure:
-                    result.Message = string.Format( "Failed to unregister the service." );
+                    result.Message = string.Format( "Failed to unregister the service, possibly because the service does not exist." );
                     break;
 
                 case OperationResultCode.MainOptionMissing:
@@ -132,6 +133,10 @@ namespace Consulctl
 
                 case OperationResultCode.CreateKeyFailure:
                     result.Message = string.Format( "Failed to create the key: {0}", commandTool.Options.Key );
+                    break;
+
+                case OperationResultCode.ValueCannotBeNullOrEmpty:
+                    result.Message = string.Format( "Cannot create a key without a value" );
                     break;
             }
 

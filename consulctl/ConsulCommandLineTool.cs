@@ -57,12 +57,12 @@ namespace Consulctl
 
         private ServiceDefinition ParseServiceDefinition()
         {
-            if( !File.Exists( Options.ServiceDefintion ) )
+            if( !File.Exists( Options.ServiceArgument ) )
                 throw OperationException( OperationResultCode.ServiceDefinitionFileNotFound );
 
             try
             {
-                var sr = new StreamReader( Options.ServiceDefintion );
+                var sr = new StreamReader( Options.ServiceArgument );
                 var serviceJson = sr.ReadToEnd();
                 return ServiceDefinition.CreateFromJson( serviceJson );
             }
@@ -109,6 +109,14 @@ namespace Consulctl
             }
         }
 
+        private void ValidateValue()
+        {
+            if( string.IsNullOrEmpty( Options.Value ) )
+            {
+                throw OperationException( OperationResultCode.ValueCannotBeNullOrEmpty );
+            }
+        }
+
         private async Task ValidateHostReachableAsync()
         {
             bool hostReachable = await Client.IsHostReachableAsync();
@@ -147,8 +155,8 @@ namespace Consulctl
             if( Options.IsServiceOperation() )
             {
                 if( Options.Create ) return await CreateServiceDefinitionAsync();
+                if( Options.Read ) return await ReadServiceDefinitionAsync();
                 if( Options.Delete ) return await DeleteServiceDefinitionAsync();
-                //TODO: Read
             }
             else if( Options.IsKeyValueOperation() )
             {
@@ -156,7 +164,11 @@ namespace Consulctl
                 ValidateUri();
                 await ValidateHostReachableAsync();
 
-                if( Options.Create ) return await CreateKeyValueAsync();
+                if( Options.Create )
+                {
+                    ValidateValue();
+                    return await CreateKeyValueAsync();
+                }
                 if( Options.Read ) return await ReadKeyAsync();
                 if( Options.Delete ) return await DeleteKeyAsync();
             }
@@ -165,20 +177,25 @@ namespace Consulctl
 
         private async Task<OperationResult> DeleteServiceDefinitionAsync()
         {
-            string serviceName = null;
-            if( File.Exists( Options.ServiceDefintion ) )
+            string serviceId = null;
+            if( File.Exists( Options.ServiceArgument ) )
             {
-                serviceName = ParseServiceDefinition().Name;
+                var serviceDef = ParseServiceDefinition();
+                serviceId = serviceDef.Id;
+                if( string.IsNullOrEmpty( serviceId ) )
+                {
+                    serviceId = serviceDef.Name;
+                }
             }
             else
             {
-                serviceName = Options.ServiceDefintion;
+                serviceId = Options.ServiceArgument;
             }
 
             ValidateUri();
             await ValidateHostReachableAsync();
 
-            bool success = await Client.UnregisterAsync( serviceName );
+            bool success = await Client.UnregisterServiceAsync( serviceId );
             return success ?
                 this.CreateResult( OperationResultCode.Success ) :
                 this.CreateResult( OperationResultCode.UnregisterServiceFailure );
@@ -190,10 +207,36 @@ namespace Consulctl
             ValidateUri();
             await ValidateHostReachableAsync();
 
-            bool success = await Client.RegisterAsync( serviceDef );
+            bool success = await Client.RegisterServiceAsync( serviceDef );
             return success ? 
                 this.CreateResult( OperationResultCode.Success ) :
                 this.CreateResult( OperationResultCode.RegisterServiceFailure );
+        }
+
+        private async Task<OperationResult> ReadServiceDefinitionAsync()
+        {
+            string serviceName = null;
+            if( File.Exists( Options.ServiceArgument ) )
+            {
+                var serviceDef = ParseServiceDefinition();
+                serviceName = serviceDef.Name;
+            }
+            else
+            {
+                serviceName = Options.ServiceArgument;
+            }
+
+            ValidateUri();
+            await ValidateHostReachableAsync();
+
+            var foundServices = await Client.ReadServicesByNameAsync( serviceName );
+
+            return new OperationResult()
+            {
+                Success = true,
+                ShowValue = true,
+                Value = JsonUtils.GetPrettyPrintedJsonFromObject( foundServices ),
+            };
         }
 
         private async Task<OperationResult> CreateKeyValueAsync()
