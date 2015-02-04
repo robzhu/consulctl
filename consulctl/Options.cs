@@ -21,13 +21,13 @@ namespace Consulctl
 
 
 
-        [Option( 'd', "delete", MutuallyExclusiveSet = "action", Required = false, HelpText = "Removes the specified key or service" )]
+        [Option( 'd', "delete", MutuallyExclusiveSet = "action", Required = false, HelpText = "Removes the specified key or service by id" )]
         public bool Delete { get; set; }
 
         [Option( 'c', "create", MutuallyExclusiveSet = "action", Required = false, HelpText = "Adds the specified key or service" )]
         public bool Create { get; set; }
 
-        [Option( 'r', "read", MutuallyExclusiveSet = "action", Required = false, HelpText = "Reads the specified key or service" )]
+        [Option( 'r', "read", MutuallyExclusiveSet = "action", Required = false, HelpText = "Reads the specified key or service by name" )]
         public bool Read { get; set; }
 
 

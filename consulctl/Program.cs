@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace Consulctl
 {
@@ -9,7 +10,7 @@ namespace Consulctl
             bool test = false;
             if( test )
             {
-                var argStr = "-r -k motd";
+                var argStr = "-d -s redis1";
                 args = argStr.Split();
             }
 

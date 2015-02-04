@@ -90,7 +90,7 @@ namespace Consulctl
                     break;
 
                 case OperationResultCode.UnregisterServiceFailure:
-                    result.Message = string.Format( "Failed to unregister the service, possibly because the service does not exist." );
+                    result.Message = string.Format( "Failed to unregister the service, likely because a service with that id does not exist." );
                     break;
 
                 case OperationResultCode.MainOptionMissing:

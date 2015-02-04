@@ -15,11 +15,12 @@ namespace Consul
         public int Port { get; set; }
         public string Node { get; set; }
         public string[] Tags { get; set; }
-        //Health check
+        public HealthCheck Check { get; set; }
     }
 
     public class ServiceDefinitionOutput
     {
+        public string Node { get; set; }
         public string Address { get; set; }
         public string ServiceId { get; set; }
         public string ServiceName { get; set; }

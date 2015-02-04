@@ -11,8 +11,9 @@ namespace Consul
     {
         const string AllServicesUrl = "v1/catalog/services";
         const string RegisterServiceUrl = "v1/agent/service/register";
-        const string UnregisterServiceUrlTemplate = "v1/agent/service/deregister/{0}";
-        const string ReadServiceUrlTemplate = "v1/catalog/service/{0}";
+        const string UnregisterAgentServiceUrlTemplate = "v1/agent/service/deregister/{0}";
+        const string UnregisterCatalogServiceUrl = "v1/catalog/deregister";
+        
         const string KeyValueUrlTemplate = "v1/kv/{0}";
 
         private HttpClient NetClient { get; set; }
@@ -61,7 +62,7 @@ namespace Consul
         //HTTP GET localhost:8500/v1/agent/service/deregister/{serviceName}
         public async Task<bool> UnregisterServiceAsync( string serviceId )
         {
-            var existingService = await ReadServiceByIdAsync( serviceId );
+            ServiceDefinitionOutput existingService = await ReadServiceByIdAsync( serviceId );
             if( existingService == null )
             {
                 return false;
@@ -69,9 +70,25 @@ namespace Consul
 
             //http://www.consul.io/docs/agent/http.html#_v1_agent_service_deregister_lt_serviceID_gt_
             //this is not a bug, documentation says unregister should be perfomed via HTTP GET
-            var url = string.Format( UnregisterServiceUrlTemplate, serviceId );
-            var response = await NetClient.GetAsync( url );
-            return response.IsSuccessStatusCode;
+
+            if( LocalMachine.IsLocalIP( existingService.Address ) )
+            {
+                //service is local, deregister via agent
+                var url = string.Format( UnregisterAgentServiceUrlTemplate, serviceId );
+                var response = await NetClient.GetAsync( url );
+                return response.IsSuccessStatusCode;
+            }
+            else
+            {
+                //service is not on the local machine, unregister it via the catalog endpoint
+                var response = await NetClient.PutJsonContentAsync( UnregisterCatalogServiceUrl, new
+                    {
+                        Datacenter = "dc1",
+                        Node = existingService.Node,
+                        ServiceID = existingService.ServiceId,
+                    } );
+                return response.IsSuccessStatusCode;
+            }
         }
         
         public async Task<ServiceDefinitionOutput> ReadServiceByIdAsync( string serviceId )
@@ -100,12 +117,26 @@ namespace Consul
             return servicesList.ToArray();
         }
 
+        
+        const string ReadCatalogServiceUrlTemplate = "v1/catalog/service/{0}";
+        const string ReadAgentServiceUrlTemplate = "v1/agent/service/{0}";
+
         //HTTP GET localhost:8500/v1/catalog/service/{serviceName}
         public async Task<ServiceDefinitionOutput[]> ReadServicesByNameAsync( string serviceName )
         {
-            var url = string.Format( ReadServiceUrlTemplate, serviceName );
+            var url = string.Format( ReadCatalogServiceUrlTemplate, serviceName );
             var response = await NetClient.GetAsync( url );
-            return await response.DeserializeJsonAsync<ServiceDefinitionOutput[]>();
+            if( response.IsSuccessStatusCode )
+            {
+                return await response.DeserializeJsonAsync<ServiceDefinitionOutput[]>();
+            }
+            else
+            {
+                //could not find a service at the catalog path, look again with the agent path:
+                url = string.Format( ReadCatalogServiceUrlTemplate, serviceName );
+                response = await NetClient.GetAsync( url );
+                return await response.DeserializeJsonAsync<ServiceDefinitionOutput[]>();
+            }
         }
 
         public async Task<bool> CreateKeyAsync( string key, string value )

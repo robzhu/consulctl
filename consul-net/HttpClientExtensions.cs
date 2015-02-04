@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -9,8 +10,16 @@ namespace Consul
         public static async Task<HttpResponseMessage> PostJsonContentAsync( this HttpClient client, string url, object content )
         {
             var request = new HttpRequestMessage( HttpMethod.Post, url );
-            var serviceJson = JsonConvert.SerializeObject( content );
-            request.Content = new StringContent( serviceJson );
+            var json = JsonConvert.SerializeObject( content );
+            request.Content = new StringContent( json, Encoding.UTF8, "application/json" );
+            return await client.SendAsync( request );
+        }
+
+        public static async Task<HttpResponseMessage> PutJsonContentAsync( this HttpClient client, string url, object content )
+        {
+            var request = new HttpRequestMessage( HttpMethod.Put, url );
+            var json = JsonConvert.SerializeObject( content );
+            request.Content = new StringContent( json, Encoding.UTF8, "application/json" );
             return await client.SendAsync( request );
         }
     }
