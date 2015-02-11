@@ -10,7 +10,7 @@ namespace Consulctl
             bool test = false;
             if( test )
             {
-                var argStr = "-d -s redis1";
+                var argStr = "-d -n foobar";
                 args = argStr.Split();
             }
 

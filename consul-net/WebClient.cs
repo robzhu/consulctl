@@ -12,7 +12,7 @@ namespace Consul
         const string AllServicesUrl = "v1/catalog/services";
         const string RegisterServiceUrl = "v1/agent/service/register";
         const string UnregisterAgentServiceUrlTemplate = "v1/agent/service/deregister/{0}";
-        const string UnregisterCatalogServiceUrl = "v1/catalog/deregister";
+        const string CatalogDeregisterUrl = "v1/catalog/deregister";
         
         const string KeyValueUrlTemplate = "v1/kv/{0}";
 
@@ -28,6 +28,23 @@ namespace Consul
             };
         }
 
+        public void Dispose()
+        {
+            Dispose( true );
+            GC.SuppressFinalize( this );
+        }
+
+        private bool _disposed = false;
+        private void Dispose( bool disposing )
+        {
+            if( _disposed ) return;
+            if( NetClient != null )
+            {
+                NetClient.Dispose();
+            }
+            _disposed = true;
+        }
+
         public async Task<bool> IsHostReachableAsync()
         {
             try
@@ -41,6 +58,55 @@ namespace Consul
             }
         }
 
+        //HTTP GET localhost:8500/v1/catalog/services
+        public async Task<OperationResult<ServiceDefinitionOutput[]>> ReadServicesInCatalogAsync( string dc )
+        {
+            var url = AllServicesUrl;
+            if( !string.IsNullOrWhiteSpace( dc ) )
+            {
+                url += string.Format( "?dc={0}", dc );
+            }
+            return await ReadServicesInCatalogInternalAsync( url );
+        }
+
+        //HTTP GET localhost:8500/v1/catalog/services?wait=10m&index={index}
+        public async Task<OperationResult<ServiceDefinitionOutput[]>> BlockingReadServicesInCatalogAsync( string dc, int latestIndex )
+        {
+            var url = AllServicesUrl;
+            if( !string.IsNullOrWhiteSpace( dc ) )
+            {
+                url += string.Format( "?dc={0}&wait=10m&index={1}", dc, latestIndex );
+            }
+            else
+            {
+                url += string.Format( "?wait=10m&index={0}", latestIndex );
+            }
+
+            return await ReadServicesInCatalogInternalAsync( url );
+        }
+
+        private async Task<OperationResult<ServiceDefinitionOutput[]>> ReadServicesInCatalogInternalAsync( string url )
+        {
+            var response = await NetClient.GetAsync( url );
+            var json = await response.Content.ReadAsStringAsync();
+
+            //the keys are the names of the services, so we need to use a JObject here.
+            JObject jobject = JObject.Parse( json );
+            var serviceNames = jobject.Properties().Select( p => p.Name ).ToList();
+
+            List<ServiceDefinitionOutput> servicesList = new List<ServiceDefinitionOutput>();
+            foreach( var serviceName in serviceNames )
+            {
+                servicesList.AddRange( await ReadServicesByNameAsync( serviceName ) );
+            }
+
+            int index = response.Headers.GetValue<int>( "X-Consul-Index" );
+
+            return new OperationResult<ServiceDefinitionOutput[]>( servicesList.ToArray() )
+            {
+                ConsulIndex = index,
+            };
+        }
 
         //HTTP POST localhost:8500/v1/agent/service/register 
         //{
@@ -81,9 +147,9 @@ namespace Consul
             else
             {
                 //service is not on the local machine, unregister it via the catalog endpoint
-                var response = await NetClient.PutJsonContentAsync( UnregisterCatalogServiceUrl, new
+                var response = await NetClient.PutJsonContentAsync( CatalogDeregisterUrl, new
                     {
-                        Datacenter = "dc1",
+                        Datacenter = Settings.DC1,
                         Node = existingService.Node,
                         ServiceID = existingService.ServiceId,
                     } );
@@ -93,28 +159,11 @@ namespace Consul
         
         public async Task<ServiceDefinitionOutput> ReadServiceByIdAsync( string serviceId )
         {
-            ServiceDefinitionOutput[] allServices = await ReadAllServicesAsync();
+            OperationResult<ServiceDefinitionOutput[]> readServicesResult = await ReadServicesInCatalogAsync( null );
+
+            var allServices = readServicesResult.Value;
             var match = allServices.Where( s => s.ServiceId == serviceId ).FirstOrDefault();
             return match;
-        }
-
-        //HTTP GET localhost:8500/v1/catalog/services
-        public async Task<ServiceDefinitionOutput[]> ReadAllServicesAsync()
-        {
-            var response = await NetClient.GetAsync( AllServicesUrl );
-            var json = await response.Content.ReadAsStringAsync();
-
-            //the keys are the names of the services, so we need to use a JObject here.
-            JObject jobject = JObject.Parse( json );
-            var serviceNames = jobject.Properties().Select( p => p.Name ).ToList();
-
-            List<ServiceDefinitionOutput> servicesList = new List<ServiceDefinitionOutput>();
-            foreach( var serviceName in serviceNames )
-            {
-                servicesList.AddRange( await ReadServicesByNameAsync( serviceName ) );
-            }
-
-            return servicesList.ToArray();
         }
 
         
@@ -168,21 +217,14 @@ namespace Consul
             return response.IsSuccessStatusCode;
         }
 
-        public void Dispose()
+        public async Task<bool> DeleteNodeAsync( string node, string dataCenter )
         {
-            Dispose( true );
-            GC.SuppressFinalize( this );
-        }
-
-        private bool _disposed = false;
-        private void Dispose( bool disposing )
-        {
-            if( _disposed ) return;
-            if( NetClient != null )
+            var response = await NetClient.PutJsonContentAsync( CatalogDeregisterUrl, new
             {
-                NetClient.Dispose();
-            }
-            _disposed = true;
+                DataCenter = dataCenter,
+                Node = node,
+            } );
+            return response.IsSuccessStatusCode;
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Consulctl
         ValueCannotBeNullOrEmpty,
         CreateKeyFailure,
         DeleteKeyFailure,
+        DeleteNodeFailure,
     }
 
     public class OperationResult
@@ -78,11 +79,11 @@ namespace Consulctl
                     break;
 
                 case OperationResultCode.ServiceDefinitionFileNotFound:
-                    result.Message = string.Format( "The specified service definition file could not be found: {0}", commandTool.Options.ServiceArgument );
+                    result.Message = string.Format( "The specified service definition file could not be found: {0}", commandTool.Options.Service );
                     break;
 
                 case OperationResultCode.ServiceDefinitionFileBadFormat:
-                    result.Message = string.Format( "The specified service definition file is not valid: {0}", commandTool.Options.ServiceArgument );
+                    result.Message = string.Format( "The specified service definition file is not valid: {0}", commandTool.Options.Service );
                     break;
 
                 case OperationResultCode.RegisterServiceFailure:
@@ -95,13 +96,15 @@ namespace Consulctl
 
                 case OperationResultCode.MainOptionMissing:
                     result.Message = "Need to specify at least one main option: \n" +
-                                     "-s --svc:     service definition\n" +
+                                     "-n --node:    node \n" +
+                                     "-s --svc:     service definition \n" +
                                      "-k --kv:      key/value";
                     break;
 
                 case OperationResultCode.MutlipleMainOptions:
                     result.Message = "Detected multiple main options. Specify only one main option: \n" +
-                                     "-s --svc:     service definition\n" +
+                                     "-n --node:    node \n" +
+                                     "-s --svc:     service definition \n" +
                                      "-k --kv:      key/value";
                     break;
 
@@ -137,6 +140,10 @@ namespace Consulctl
 
                 case OperationResultCode.ValueCannotBeNullOrEmpty:
                     result.Message = string.Format( "Cannot create a key without a value" );
+                    break;
+
+                case OperationResultCode.DeleteNodeFailure:
+                    result.Message = string.Format( "Cannot delete the specified node, likely because it does not exist." );
                     break;
             }
 

@@ -61,6 +61,21 @@ namespace Consulctl.UnitTests
         {
             throw new NotImplementedException();
         }
+
+        public Task<bool> DeleteNodeAsync( string node, string dataCenter )
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OperationResult<ServiceDefinitionOutput[]>> ReadServicesInCatalogAsync( string dc )
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OperationResult<ServiceDefinitionOutput[]>> BlockingReadServicesInCatalogAsync( string dc, int latestIndex )
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [TestClass]

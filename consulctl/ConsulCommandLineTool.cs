@@ -57,12 +57,12 @@ namespace Consulctl
 
         private ServiceDefinition ParseServiceDefinition()
         {
-            if( !File.Exists( Options.ServiceArgument ) )
+            if( !File.Exists( Options.Service ) )
                 throw OperationException( OperationResultCode.ServiceDefinitionFileNotFound );
 
             try
             {
-                var sr = new StreamReader( Options.ServiceArgument );
+                var sr = new StreamReader( Options.Service );
                 var serviceJson = sr.ReadToEnd();
                 return ServiceDefinition.CreateFromJson( serviceJson );
             }
@@ -172,13 +172,17 @@ namespace Consulctl
                 if( Options.Read ) return await ReadKeyAsync();
                 if( Options.Delete ) return await DeleteKeyAsync();
             }
+            else if( Options.IsNodeOperation() )
+            {
+                if( Options.Delete ) return await DeleteNodeAsync();
+            }
             return this.CreateResult( OperationResultCode.GenericError );
         }
 
         private async Task<OperationResult> DeleteServiceDefinitionAsync()
         {
             string serviceId = null;
-            if( File.Exists( Options.ServiceArgument ) )
+            if( File.Exists( Options.Service ) )
             {
                 var serviceDef = ParseServiceDefinition();
                 serviceId = serviceDef.Id;
@@ -189,7 +193,7 @@ namespace Consulctl
             }
             else
             {
-                serviceId = Options.ServiceArgument;
+                serviceId = Options.Service;
             }
 
             ValidateUri();
@@ -216,14 +220,14 @@ namespace Consulctl
         private async Task<OperationResult> ReadServiceDefinitionAsync()
         {
             string serviceName = null;
-            if( File.Exists( Options.ServiceArgument ) )
+            if( File.Exists( Options.Service ) )
             {
                 var serviceDef = ParseServiceDefinition();
                 serviceName = serviceDef.Name;
             }
             else
             {
-                serviceName = Options.ServiceArgument;
+                serviceName = Options.Service;
             }
 
             ValidateUri();
@@ -267,6 +271,14 @@ namespace Consulctl
             return success ?
                 this.CreateResult( OperationResultCode.Success ) :
                 this.CreateResult( OperationResultCode.DeleteKeyFailure );
+        }
+
+        private async Task<OperationResult> DeleteNodeAsync()
+        {
+            bool success = await Client.DeleteNodeAsync( Options.Node, Options.DataCenter );
+            return success ?
+                this.CreateResult( OperationResultCode.Success ) :
+                this.CreateResult( OperationResultCode.DeleteNodeFailure );
         }
     }
 }

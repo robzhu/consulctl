@@ -14,10 +14,13 @@ namespace Consulctl
 
 
         [Option( 's', "svc", MutuallyExclusiveSet = "main", Required = false, HelpText = "Perform a service-related operation." )]
-        public string ServiceArgument { get; set; }
+        public string Service { get; set; }
 
         [Option( 'k', "key", MutuallyExclusiveSet = "main", Required = false, HelpText = "Perform a key-value-related operation." )]
         public string Key { get; set; }
+
+        [Option( 'n', "node", MutuallyExclusiveSet = "main", Required = false, HelpText = "Perform a node-related operation." )]
+        public string Node { get; set; }
 
 
 
@@ -30,7 +33,8 @@ namespace Consulctl
         [Option( 'r', "read", MutuallyExclusiveSet = "action", Required = false, HelpText = "Reads the specified key or service by name" )]
         public bool Read { get; set; }
 
-
+        [Option( "dc", DefaultValue="dc1", Required = false, HelpText = "The datacenter to perform the operation in" )]
+        public string DataCenter { get; set; }
 
         [ValueOption( 0 )]
         public string Value { get; set; }
@@ -68,7 +72,7 @@ namespace Consulctl
 
         public bool IsServiceOperation()
         {
-            return ( !string.IsNullOrEmpty( ServiceArgument ) );
+            return ( !string.IsNullOrEmpty( Service ) );
         }
 
         public bool IsKeyValueOperation()
@@ -76,14 +80,19 @@ namespace Consulctl
             return ( !string.IsNullOrEmpty( Key ) );
         }
 
+        public bool IsNodeOperation()
+        {
+            return ( !string.IsNullOrEmpty( Node ) );
+        }
+
         public bool IsMissingMainOption()
         {
-            return ( !IsServiceOperation() && !IsKeyValueOperation() );
+            return ( !IsServiceOperation() && !IsKeyValueOperation() && !IsNodeOperation() );
         }
 
         public bool MultipleMainOptions()
         {
-            return ( IsServiceOperation() && IsKeyValueOperation() );
+            return ( IsServiceOperation() && IsKeyValueOperation() && IsNodeOperation() );
         }
 
         public bool IsMissingSubOption()

@@ -49,6 +49,9 @@
     <Compile Include="HttpClientExtensions.cs" />
     <Compile Include="IWebClient.cs" />
     <Compile Include="LocalMachine.cs" />
+    <Compile Include="OperationErrors.cs" />
+    <Compile Include="OperationResult.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="ValueEntry.cs" />
     <Compile Include="WebClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,7 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -30,6 +33,16 @@ namespace Consul
         {
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>( json );
+        }
+    }
+
+    public static class HttpHeadersExtensions
+    {
+        public static T GetValue<T>( this HttpHeaders headers, string header )
+        {
+            string str = headers.GetValues( header ).First();
+            T value = (T)Convert.ChangeType( str, typeof( T ) );
+            return value;
         }
     }
 }
